@@ -27,7 +27,6 @@ main (int argc, char *argv[])
 
   int rv = -1;
 
-  RR.get_info();
   RR.createObject ();
 
   for (int i = 0; i < 10; i++)

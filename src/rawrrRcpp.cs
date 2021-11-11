@@ -30,8 +30,9 @@ namespace RawrrEmbed
 
       RawRr ()
     {
-	    this.filename = @"/home/cp/__checkouts/bioc/rawrr/inst/extdata/sample.raw";
-	    this.filename = @"sample.raw";
+  //          this.filename = @"/home/cp/__checkouts/bioc/rawrr/inst/extdata/sample.raw";
+	    this.filename = @"/tmp/sample.raw";
+	 //   this.filename = @"sample.raw";
       //this.rawFile = ThermoFisher.CommonCore.RawFileReader.RawFileReaderAdapter.FileFactory (this.filename);
       //this.rawFile.SelectInstrument (Device.MS, 1);
       //Console.WriteLine("RawRr constructor");
@@ -48,7 +49,7 @@ namespace RawrrEmbed
 
     string[]get_info ()
     {
-      String[]rv = new String[8];
+      String[]rv = new String[7];
       Process currentProcess = Process.GetCurrentProcess ();
       rv[0] = System.Reflection.Assembly.GetExecutingAssembly ().CodeBase;
       rv[1] =
@@ -61,7 +62,6 @@ namespace RawrrEmbed
 	(currentProcess.PrivateMemorySize64 / 1024).ToString ();
       rv[5] = "Error message:\t" + this.errormsg;
       rv[6] = "raw file name:\t" + this.filename;
-      rv[7] = "File.Exists:\t" + File.Exists(this.filename).ToString();
       /*
       try{
         long length = new System.IO.FileInfo(this.filename).Length;
@@ -71,7 +71,7 @@ namespace RawrrEmbed
 	rv[7] = "raw file size:\tcan not be determined catch Exception. " + ex.Message;
       }
       */
-      this.rawFile.SelectInstrument (Device.MS, 1);
+      //this.rawFile.SelectInstrument (Device.MS, 1);
 
       return (rv);
     }
@@ -88,6 +88,13 @@ namespace RawrrEmbed
 
     int get_Revision ()
     {
+      try{
+       File.Exists(this.filename);
+      }catch (Exception ex)
+      {
+	this.errormsg = "raw file size:\tcan not be determined catch Exception. >>" + ex.Message + "<<\n";
+      }
+
       try
       {
 	      this.errormsg += "\n#";

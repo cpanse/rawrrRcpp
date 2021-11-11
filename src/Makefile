@@ -6,7 +6,7 @@ cppbuild:
 clean:
 	$(RM) -vfr *.json sourceCpp-x86_64-pc-linux-gnu-1.0.7 *.blob
 monobuild:
-	msbuild && mono rawrrRcpp.exe 
+	xbuild && mono rawrrRcpp.exe 
 
 Rcppbuild:
 	R --no-save < Rawrr.R
