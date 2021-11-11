@@ -18,12 +18,15 @@
 
 #include <iostream>
 
+#include <Rcpp.h>
+using namespace Rcpp;
+
 class Rawrr
 {
   //const char *rawFile = "/home/cp/__checkouts/bioc/rawrr/inst/extdata/sample.raw";
   const char *rawFile = "/tmp/sample.raw";
   //const char *assemblyFile = "/home/cp/project/2021/rawrrR.cpp/Rcpp/rawrrRcpp.exe";
-  const char* assemblyFile = "rawrrRcpp.exe";
+  const char *assemblyFile = "rawrrRcpp.exe";
   //const char* assemblyFile = "/home/cp/project/2021/rawrrR.cpp/Rcpp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_532944cf5d5fd/rawrrRcpp.exe";
   MonoDomain *domain;
   MonoAssembly *assembly;
@@ -31,6 +34,7 @@ class Rawrr
 
   MonoMethod *function_get_Revision;
   MonoMethod *function_get_info;
+  MonoMethod *function_get_mZvalues;
   MonoClass *Raw;
   MonoObject *obj;
 
@@ -64,9 +68,9 @@ public:
     int argc = 2;
     //char *argv[] = { (char*)"/tmp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_2c46981becf99b/rawrrRcpp.exe", (char*)"/tmp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_2c46981becf99b/rawrrRcpp.exe", NULL };
 
-    char *argv[] =
-      { (char *) "rawrrRcpp.exe",
-      (char *) "rawrrRcpp.exe", NULL };
+    char *argv[] = { (char *) "rawrrRcpp.exe",
+      (char *) "rawrrRcpp.exe", NULL
+    };
 
 //   char *argv[] = { (char*)"/home/cp/project/2021/rawrrR.cpp/Rcpp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_3cdc296516ff44/rawrrRcpp.exe", (char*)"/home/cp/project/2021/rawrrR.cpp/Rcpp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_3cdc296516ff44/rawrrRcpp.exe", NULL };
 
@@ -105,6 +109,7 @@ public:
 
     function_get_Revision = NULL;
     function_get_info = NULL;
+    function_get_mZvalues = NULL;
     iter = NULL;
     while ((m = mono_class_get_methods (klass, &iter)))
       {
@@ -117,10 +122,42 @@ public:
 	  {
 	    function_get_info = m;
 	  }
+	else if (strcmp (mono_method_get_name (m), "mZvalues") == 0)
+	  {
+	    function_get_mZvalues = m;
+	  }
 	else
 	  {
 	  }
       }				//while
+  }
+
+
+  NumericVector get_mZvalues (int scanIdx)
+  {
+    void *args[2];
+    int val;
+    MonoObject *exception;
+    val = scanIdx;
+    args[0] = &val;
+    exception = NULL;
+    MonoArray *resultArray =
+      (MonoArray *) mono_runtime_invoke (function_get_mZvalues, obj, args,
+					 &exception);
+    if (exception)
+      {
+	return (-1);
+      }
+    NumericVector rv (mono_array_length (resultArray));
+    //printf("LENGTH=%d\n", mono_array_length (resultArray));
+    for (unsigned int i = 0; i < mono_array_length (resultArray); i++)
+      {
+	MonoString *s = mono_array_get (resultArray, MonoString *, i);
+	char *s2 = mono_string_to_utf8 (s);
+	//    printf ("\t%d\t%f\n", i, atof (s2) + 0.1);
+	rv[i] = atof (s2);
+      }
+    return (rv);
   }
 
 
@@ -130,7 +167,8 @@ public:
     int val;
 
     exception = NULL;
-    result = mono_runtime_invoke (function_get_Revision, obj, NULL, &exception);
+    result =
+      mono_runtime_invoke (function_get_Revision, obj, NULL, &exception);
     if (exception)
       {
 	printf ("An exception was thrown  get_Revision()\n");
@@ -152,7 +190,8 @@ public:
     exception = NULL;
 
     MonoArray *result =
-      (MonoArray *) mono_runtime_invoke (function_get_info, obj, NULL, &exception);
+      (MonoArray *) mono_runtime_invoke (function_get_info, obj, NULL,
+					 &exception);
 
     if (exception)
       {
@@ -171,4 +210,4 @@ public:
     return (0);
   }
 
-}; //class
+};				//class

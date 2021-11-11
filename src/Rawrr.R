@@ -12,8 +12,18 @@ Rcpp::sourceCpp("rawrrRcpp.cpp", cacheDir = "/scratch/cpanse/Rcpp/", showOutput=
 R <- new(Rawrr)
 R
 R$createObject()
-R$get_info()
-#R$get_info()
-R$get_info()
-rv <- sapply(1:100, function(x){R$get_Revision()})
-table(rv)
+R$get_Revision()
+
+R$get_mZvalues(1)
+
+rv <- lapply(c(1,1,10,100,1000, 2000, 4000 ), function(n){
+start_time <- Sys.time()
+mZ <- lapply(1:n, function(scanId){R$get_mZvalues(scanId)})
+end_time <- Sys.time()
+
+td <- end_time - start_time
+	data.frame(n=n, timediff=td)
+}) |> Reduce(f=rbind)
+rv$scanspersecond <- rv$n / as.double(rv$timediff)  
+rv
+#mZ[1]

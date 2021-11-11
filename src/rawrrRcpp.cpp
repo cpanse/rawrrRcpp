@@ -16,6 +16,7 @@
 #endif
 
 
+
 #include "rawrrRcpp.h"
 
 
@@ -36,13 +37,18 @@ main (int argc, char *argv[])
   RR.get_info();
     }
 
+  for (int i = 0; i < 50000; i++){
+	  std::cout << "SCAN " << i << std::endl;
+  	rv = RR.get_mZvalues(i);
+  }
+
+
   return (0);
 
 }
 
 #else
 
-#include <Rcpp.h>
 using namespace Rcpp;
 
 
@@ -51,7 +57,9 @@ RCPP_MODULE (RawrrMod)
 {
   class_ < Rawrr >
     ("Rawrr").default_constructor ("Default constructor").
-    method ("createObject", &Rawrr::createObject, "createObject.").method ("get_Revision", &Rawrr::get_Revision, "Returns the rawfile revision.").
+    method ("createObject", &Rawrr::createObject, "createObject.").
+    method ("get_Revision", &Rawrr::get_Revision, "Returns the rawfile revision.").
+    method ("get_mZvalues", &Rawrr::get_mZvalues, "Returns mZ valyes of a given scan id.").
     method ("get_info", &Rawrr::get_info, "Returns the rawfile revision.");
 }
 

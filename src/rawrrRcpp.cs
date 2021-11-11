@@ -79,10 +79,18 @@ namespace RawrrEmbed
     string[]mZvalues (int idx)
     {
       var scan = Scan.FromFile (rawFile, idx);
+
       var mZ = scan.CentroidScan.Masses.ToArray ();
-      String[]mZString = new String[mZ.Length];
+      var intensities = scan.CentroidScan.Intensities.ToArray();
+
+      String[]mZString = new String[2 * mZ.Length];
+
       for (int i = 0; i < mZ.Length; i++)
-	mZString[i] = mZ[i].ToString ();
+        mZString[i] = mZ[i].ToString ();
+
+      for (int i = mZ.Length; i < 2*mZ.Length; i++)
+        mZString[i] = intensities[i-mZ.Length].ToString ();
+
       return mZString;
     }
 
@@ -135,6 +143,6 @@ namespace RawrrEmbed
       //             Console.WriteLine(msg);
       //          }
       //          Console.WriteLine(R.get_Revision());
-    }
+  }
   }
 }

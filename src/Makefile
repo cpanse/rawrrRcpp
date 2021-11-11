@@ -1,4 +1,4 @@
-CPPFLAGS=-std=gnu++14 -g -O2 -fstack-protector-strong
+CPPFLAGS=-std=gnu++14 -g -O2 -fstack-protector-strong -I"/usr/local/lib/R/site-library/Rcpp/include" -I/usr/share/R/include/
 run: cppbuild monobuild
 	./rawrrRcpp	
 cppbuild:
