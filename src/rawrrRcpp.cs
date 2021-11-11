@@ -30,9 +30,9 @@ namespace RawrrEmbed
 
       RawRr ()
     {
-  //          this.filename = @"/home/cp/__checkouts/bioc/rawrr/inst/extdata/sample.raw";
-	    this.filename = @"/tmp/sample.raw";
-	 //   this.filename = @"sample.raw";
+      //          this.filename = @"/home/cp/__checkouts/bioc/rawrr/inst/extdata/sample.raw";
+      this.filename = @"/tmp/sample.raw";
+      //   this.filename = @"sample.raw";
       //this.rawFile = ThermoFisher.CommonCore.RawFileReader.RawFileReaderAdapter.FileFactory (this.filename);
       //this.rawFile.SelectInstrument (Device.MS, 1);
       //Console.WriteLine("RawRr constructor");
@@ -53,8 +53,8 @@ namespace RawrrEmbed
       Process currentProcess = Process.GetCurrentProcess ();
       rv[0] = System.Reflection.Assembly.GetExecutingAssembly ().CodeBase;
       rv[1] =
-	System.Reflection.Assembly.GetAssembly (typeof (IRawDataPlus)).
-	Location;
+	System.Reflection.Assembly.
+	GetAssembly (typeof (IRawDataPlus)).Location;
       rv[2] = currentProcess.ToString ();
       rv[3] = "currentProcess.Id:\t" + currentProcess.Id.ToString ();
       rv[4] =
@@ -63,52 +63,65 @@ namespace RawrrEmbed
       rv[5] = "Error message:\t" + this.errormsg;
       rv[6] = "raw file name:\t" + this.filename;
       /*
-      try{
-        long length = new System.IO.FileInfo(this.filename).Length;
-        rv[7] = "raw file size:\t" + length.ToString();
-      }catch (Exception ex)
-      {
-	rv[7] = "raw file size:\tcan not be determined catch Exception. " + ex.Message;
-      }
-      */
+         try{
+         long length = new System.IO.FileInfo(this.filename).Length;
+         rv[7] = "raw file size:\t" + length.ToString();
+         }catch (Exception ex)
+         {
+         rv[7] = "raw file size:\tcan not be determined catch Exception. " + ex.Message;
+         }
+       */
       //this.rawFile.SelectInstrument (Device.MS, 1);
 
       return (rv);
     }
 
+    string[]trailer (int idx)
+    {
+      var scanTrailer = rawFile.GetTrailerExtraInformation (idx);
+      var trailerValues = scanTrailer.Values;
+      var trailerLabels = scanTrailer.Labels;
+      var zipTrailer = trailerLabels.ToArray ().Zip (trailerValues, (a, b) => string.Format ("{0}={1}", a, b)).ToArray();
+      return zipTrailer;
+    }
+
+    /// TODO: rename peakValues
     string[]mZvalues (int idx)
     {
       var scan = Scan.FromFile (rawFile, idx);
 
       var mZ = scan.CentroidScan.Masses.ToArray ();
-      var intensities = scan.CentroidScan.Intensities.ToArray();
+      var intensities = scan.CentroidScan.Intensities.ToArray ();
 
       String[]mZString = new String[2 * mZ.Length];
 
       for (int i = 0; i < mZ.Length; i++)
-        mZString[i] = mZ[i].ToString ();
+	mZString[i] = mZ[i].ToString ();
 
-      for (int i = mZ.Length; i < 2*mZ.Length; i++)
-        mZString[i] = intensities[i-mZ.Length].ToString ();
+      for (int i = mZ.Length; i < 2 * mZ.Length; i++)
+	mZString[i] = intensities[i - mZ.Length].ToString ();
 
       return mZString;
     }
 
     int get_Revision ()
     {
-      try{
-       File.Exists(this.filename);
-      }catch (Exception ex)
+      try
       {
-	this.errormsg = "raw file size:\tcan not be determined catch Exception. >>" + ex.Message + "<<\n";
+	File.Exists (this.filename);
+      } catch (Exception ex)
+      {
+	this.errormsg =
+	  "raw file size:\tcan not be determined catch Exception. >>" +
+	  ex.Message + "<<\n";
       }
 
       try
       {
-	      this.errormsg += "\n#";
+	this.errormsg += "\n#";
 	this.rawFile =
-	  ThermoFisher.CommonCore.RawFileReader.
-	  RawFileReaderAdapter.FileFactory (this.filename);
+	  ThermoFisher.CommonCore.RawFileReader.RawFileReaderAdapter.
+	  FileFactory (this.filename);
 
 	if (!this.rawFile.IsOpen || this.rawFile.IsError)
 	  {
@@ -143,6 +156,6 @@ namespace RawrrEmbed
       //             Console.WriteLine(msg);
       //          }
       //          Console.WriteLine(R.get_Revision());
-  }
+    }
   }
 }

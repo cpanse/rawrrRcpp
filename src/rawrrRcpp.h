@@ -35,6 +35,7 @@ class Rawrr
   MonoMethod *function_get_Revision;
   MonoMethod *function_get_info;
   MonoMethod *function_get_mZvalues;
+  MonoMethod *function_get_trailer;
   MonoClass *Raw;
   MonoObject *obj;
 
@@ -110,6 +111,7 @@ public:
     function_get_Revision = NULL;
     function_get_info = NULL;
     function_get_mZvalues = NULL;
+    function_get_trailer = NULL;
     iter = NULL;
     while ((m = mono_class_get_methods (klass, &iter)))
       {
@@ -126,12 +128,40 @@ public:
 	  {
 	    function_get_mZvalues = m;
 	  }
+	else if (strcmp (mono_method_get_name (m), "trailer") == 0)
+	  {
+	    function_get_trailer = m;
+	  }
 	else
 	  {
 	  }
       }				//while
   }
 
+  CharacterVector get_trailer (int scanIdx)
+  {
+    void *args[2];
+    int val;
+    MonoObject *exception;
+    val = scanIdx;
+    args[0] = &val;
+    exception = NULL;
+    MonoArray *resultArray =
+      (MonoArray *) mono_runtime_invoke (function_get_trailer, obj, args,
+					 &exception);
+    if (exception)
+      {
+	return (-1);
+      }
+    CharacterVector rv (mono_array_length (resultArray));
+    for (unsigned int i = 0; i < mono_array_length (resultArray); i++)
+      {
+	MonoString *s = mono_array_get (resultArray, MonoString *, i);
+	char *s2 = mono_string_to_utf8 (s);
+	rv[i] = s2;
+      }
+    return (rv);
+  }
 
   NumericVector get_mZvalues (int scanIdx)
   {
@@ -149,12 +179,10 @@ public:
 	return (-1);
       }
     NumericVector rv (mono_array_length (resultArray));
-    //printf("LENGTH=%d\n", mono_array_length (resultArray));
     for (unsigned int i = 0; i < mono_array_length (resultArray); i++)
       {
 	MonoString *s = mono_array_get (resultArray, MonoString *, i);
 	char *s2 = mono_string_to_utf8 (s);
-	//    printf ("\t%d\t%f\n", i, atof (s2) + 0.1);
 	rv[i] = atof (s2);
       }
     return (rv);

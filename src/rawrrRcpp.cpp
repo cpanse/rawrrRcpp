@@ -60,6 +60,7 @@ RCPP_MODULE (RawrrMod)
     method ("createObject", &Rawrr::createObject, "createObject.").
     method ("get_Revision", &Rawrr::get_Revision, "Returns the rawfile revision.").
     method ("get_mZvalues", &Rawrr::get_mZvalues, "Returns mZ valyes of a given scan id.").
+    method ("get_trailer", &Rawrr::get_trailer, "Returns extra trailer of a given scan id.").
     method ("get_info", &Rawrr::get_info, "Returns the rawfile revision.");
 }
 
