@@ -21,7 +21,7 @@
 ```{r}
 .readSpectrumRcpp <- function(rawfile, scan){
     R <- new(Rawrr)
-    R.setAssembly(rawfile)
+    R.setAssembly(rawrr:::.rawrrAssembly())
     R.setFileName(rawfile)
 
     mZ <- R.getValues(scan, 'mZ')
