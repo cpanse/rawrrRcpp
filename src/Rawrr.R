@@ -17,7 +17,7 @@ R$get_Revision()
 R$get_mZvalues(1)
 R$get_trailer(1)
 
-rv <- lapply(c(1, 1, 10, 100, 500, 1000, 2000, 10000, 20000, 30000, 40000), function(n){
+rv <- lapply(c(1, 1, 10, 100), function(n){
   start_time <- Sys.time()
   mZ <- lapply(1:n, function(scanId){list(peaks=R$get_mZvalues(scanId), dump=R$get_mZvalues(scanId),tailer=R$get_trailer(scanId))})
   end_time <- Sys.time()
