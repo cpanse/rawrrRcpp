@@ -7,16 +7,49 @@
 * https://www.denbi.de/news/1299-3rd-de-nbi-elixir-de-metarbolomics-hackathon
 
 
-|               |                   |
-| :------------ | :---------------- |
-| R             |                  |
-|            |    Rcpp              |
-|  C++-code       |                 |
-|            |    libmono-2.0  |
-|  C#        |                 |
-|            |                 |
-|            |                 |
 
+<table>
+
+<tr style="border:2px solid black">
+<td style="padding:15px">
+R>
+</td>
+</tr>
+
+<tr style="border:2px solid black">
+<td style="padding:15px">
+Rcpp module
+</td>
+</tr>
+
+<tr style="background-color:yellow;color:black; border:2px solid black">
+<td style="padding:15px">
+C++ code
+</td>
+</tr>
+
+<tr style="background-color:yellowgreen;color:black; border:2px solid black">
+<td style="padding:15px">
+Mono Runtime - linking `libmono-2`
+</td>
+</tr>
+
+<tr style="background-color:orange;color:black; border:2px solid black">
+<td style="padding:15px">
+Managed Assembly
+(CIL/.NET code)
+</td>
+</tr>
+
+<tr style="background-color:orange;color:black; border:2px solid black">
+<td style="padding:15px">
+ThermoFisher.CommonCore.*.dll
+</td>
+</tr>
+
+</table>
+
+```{r prx, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
 
 ```{r}
 .readSpectrumRcpp <- function(rawfile, scan){
