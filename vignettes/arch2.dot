@@ -1,0 +1,38 @@
+digraph G {
+  graph [fontsize=30 labelloc="t" label="" splines=true overlap=false rankdir = "TB"];
+  node [shape="Mrecord"];
+
+  rawDiag -> Spectra 
+  Spectra -> MsBackendRawFileReader -> Rcpp [color=black];
+  MsBackendRawFileReader ->  parseRcode [color=lightgrey];
+
+  Rcpp -> API -> rDotNet ->  dotNet [color=black];
+  parseRcode -> Rcode [color=lightgrey];
+  dotNet -> writeRcode -> Rcode  [color=lightgrey];
+  MsBackendRawFileReader -> dotNet [color=lightgrey];
+  dotNet -> dll1 -> raw [color=black];
+  parseRcode, Rcode, writeRcode  [color=lightgrey, fontcolor=lightgrey];
+
+  dll1, API, rDotNet, Rcpp, dotNet, Rcpp, MsBackendRawFileReader [color=black, fontcolor=black];
+
+
+
+  Spectra -> MsBackendMzR -> mzR -> XMLparser -> mzXML [color=lightgrey];
+  msconvert, dll0, mzXML, MsBackendMzR, mzR, XMLparser, mzXML [color=lightgrey, fontcolor=lightgrey];
+  msconvert -> dll0 -> raw [color=lightgrey];
+  msconvert -> mzXML [color=lightgrey];
+ 
+  raw [label="*.raw\non filesystem"];
+  dll1 [label="ThermoFisher.CommonCore.*.dll\nLinux/Apple/Microsoft"];
+  dll0 [label="MSFileReader DLL\nMicrosoft"];
+  API[label="TCP-based API"];
+  dotNet [label=".NET"];
+  mzXML [label="*.mzXML\n*.mzML\non filesystem"]
+  Rcode [label="temporary *.R\non filesystem"]
+
+  {
+    rank = same;
+    Rcode -> raw  -> mzXML [ style=invis ];
+    rankdir = LR;
+  }
+}
