@@ -11,14 +11,16 @@ Sys.setenv("PKG_LIBS"="`pkg-config --libs mono-2`")
 Rcpp::sourceCpp("rawrrRcpp.cpp", cacheDir = "/tmp/cpanse/Rcpp/", showOutput=TRUE, verbose=TRUE, rebuild = TRUE)
 #Rcpp::sourceCpp("rawrrRcpp.cpp", cacheDir = "/home/cp/project/2021/rawrrR.cpp/Rcpa")
 R <- new(Rawrr)
-R
+R$setAssembly('rawrrRcpp.exe')
 R$createObject()
+R$setRawFile(rawrr::sampleFilePath())
+R
 R$get_Revision()
 
 R$get_mZvalues(1)
 R$get_trailer(1)
 
-rv <- lapply(c(1, 1, 10, 100), function(n){
+rv <- lapply(c(1, 2, 4, 8, 16,32, 64,128,256), function(n){
   start_time <- Sys.time()
   mZ <- lapply(1:n, function(scanId){list(peaks=R$get_mZvalues(scanId), dump=R$get_mZvalues(scanId),tailer=R$get_trailer(scanId))})
   end_time <- Sys.time()

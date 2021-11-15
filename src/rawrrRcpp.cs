@@ -1,26 +1,26 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.ExceptionServices;
+using System.Collections;
+using System.Linq;
+
+using ThermoFisher.CommonCore.Data;
+using ThermoFisher.CommonCore.Data.Business;
+using ThermoFisher.CommonCore.Data.FilterEnums;
+using ThermoFisher.CommonCore.Data.Interfaces;
+using ThermoFisher.CommonCore.MassPrecisionEstimator;
+using ThermoFisher.CommonCore.RawFileReader;
+
 namespace RawrrEmbed
 {
-  using System;
-  using System.Collections.Generic;
-  using System.Diagnostics;
-  using System.IO;
-  using System.Runtime.ExceptionServices;
-  using System.Collections;
-  using System.Linq;
-
-  using ThermoFisher.CommonCore.Data;
-  using ThermoFisher.CommonCore.Data.Business;
-  using ThermoFisher.CommonCore.Data.FilterEnums;
-  using ThermoFisher.CommonCore.Data.Interfaces;
-  using ThermoFisher.CommonCore.MassPrecisionEstimator;
-  using ThermoFisher.CommonCore.RawFileReader;
-
   class RawRr
   {
     //string rawrr_version = "1.3.0";
     string errormsg = "";
     string filename = null;
-      ThermoFisher.CommonCore.Data.Interfaces.IRawDataPlus rawFile;
+    ThermoFisher.CommonCore.Data.Interfaces.IRawDataPlus rawFile;
 
     //ThermoFisher.CommonCore.Data.Interfaces.IRawDataPlus rawFile = ThermoFisher.CommonCore.RawFileReader.RawFileReaderAdapter.FileFactory (filename);
     //rawFile.SelectInstrument(Device.MS, 1);
@@ -36,6 +36,10 @@ namespace RawrrEmbed
       //this.rawFile = ThermoFisher.CommonCore.RawFileReader.RawFileReaderAdapter.FileFactory (this.filename);
       //this.rawFile.SelectInstrument (Device.MS, 1);
       //Console.WriteLine("RawRr constructor");
+    }
+
+    void setRawFile(string f){
+	    this.filename = f;
     }
 
     string[] LastSpectrum2 ()
@@ -140,7 +144,7 @@ namespace RawrrEmbed
       }
       this.rawFile.SelectInstrument (Device.MS, 1);
       return (this.rawFile.FileHeader.Revision);
-      return (rawFile.FileHeader.Revision);
+      //return (rawFile.FileHeader.Revision);
     }
 
     private static void Main (string[]args)

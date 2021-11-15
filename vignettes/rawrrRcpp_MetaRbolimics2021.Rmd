@@ -31,7 +31,7 @@ Proteomics currently processes output of ~12 MS (mostly LC-ESI-MS). Many Orbitra
 https://fgcz.ch/ 
 
 
-## Past and present <.smaller>
+## Past and present {.smaller}
 
 `rawDiag | rawrr | MsBackendRawFileReader`
 
@@ -53,13 +53,10 @@ knitr::include_graphics("arch2.svg")
 
 ## Future - invoke managed methods from C {.smaller}
 
-
 <div class="columns-2">
-
-How embedding works:
+How CIL embedding works:
 
 <table>
-
 <tr style="border:2px solid black">
 <td style="padding:15px">
 `R>`
@@ -100,24 +97,27 @@ ThermoFisher.CommonCore.*.dll
 </table>
 
 
-```{r eval=FALSE}
-# Rcpp::sourceCpp("rawrrRcpp.cpp")
+```{r eval=TRUE, echo=FALSE}
+Sys.setenv("PKG_CXXFLAGS"="`pkg-config --cflags mono-2` -O3")
+Sys.setenv("PKG_LIBS"="`pkg-config --libs mono-2`")
+```
+
+```{r}
+setwd('../src/')
+Rcpp::sourceCpp("rawrrRcpp.cpp")
 # INPUT:
 rawfile <- "sample.raw"
 scan <- 1
-
 R <- new(Rawrr)
-R.setAssembly(rawrr:::.rawrrAssembly())
-R.setFileName(rawfile)
-
+R.setAssembly('rawrrRcpp.exe')
+#R.setFileName(rawfile)
 # OUTPUT: 
-mZ <- R.getValues(scan, 'mZ')
-intensities <- R.getValues(scan, 'intensities')
-nois <- R.getValues(scan, 'noise')
-resolution <- R.getValues(scan, 'resolution')
-trailer <- R.getTrailer(scan)
-
-R$deconstructor()
+#mZ <- R.getValues(scan, 'mZ')
+#intensities <- R.getValues(scan, 'intensities')
+#nois <- R.getValues(scan, 'noise')
+#resolution <- R.getValues(scan, 'resolution')
+#trailer <- R.getTrailer(scan)
+#R$deconstructor()
 ```
 
 </div>

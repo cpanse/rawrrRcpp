@@ -23,15 +23,13 @@ using namespace Rcpp;
 
 class Rawrr
 {
-  //const char *rawFile = "/home/cp/__checkouts/bioc/rawrr/inst/extdata/sample.raw";
-  const char *rawFile = "/tmp/sample.raw";
-  //const char *assemblyFile = "/home/cp/project/2021/rawrrR.cpp/Rcpp/rawrrRcpp.exe";
-  const char *assemblyFile = "rawrrRcpp.exe";
-  //const char* assemblyFile = "/home/cp/project/2021/rawrrR.cpp/Rcpp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_532944cf5d5fd/rawrrRcpp.exe";
+  std::string rawFile = "/tmp/sample.raw";
+  std::string assemblyFile = "rawrrRcpp.exe";
   MonoDomain *domain;
   MonoAssembly *assembly;
   MonoImage *image;
 
+  MonoMethod *function_set_rawFile;
   MonoMethod *function_get_Revision;
   MonoMethod *function_get_info;
   MonoMethod *function_get_mZvalues;
@@ -45,11 +43,10 @@ public:
     Rawrr ()
   {
     std::cout << "cpp: Rawrr()" << std::endl;
-    std::ifstream my_file (rawFile);
+    std::ifstream my_file (rawFile.c_str ());
     if (my_file.good ())
       {
 	// read away
-	std::cout << "FILE '" << rawFile << "' IS GOOD!" << std::endl;
       }
     else
       {
@@ -57,8 +54,38 @@ public:
       }
     mono_config_parse (NULL);
     domain = mono_jit_init_version ("rawrrr", "v4.0");
+  }
 
-    assembly = mono_domain_assembly_open (domain, assemblyFile);
+  void setAssembly (std::string file)
+  {
+    Rcpp::Rcout << assemblyFile << std::endl;
+    assemblyFile = file;
+    Rcpp::Rcout << assemblyFile << std::endl;
+  }
+
+  void setRawFile (std::string file)
+  {
+    Rcpp::Rcout << rawFile << std::endl;
+    rawFile = file;
+    Rcpp::Rcout << rawFile << std::endl;
+
+    MonoString *str;
+    void *args[1];
+    MonoObject *exception;
+    str = mono_string_new (domain, rawFile.c_str ());
+    args[0] = &str;
+    exception = NULL;
+    mono_runtime_invoke (function_set_rawFile, obj, args, &exception);
+    if (exception)
+      {
+	Rcpp::Rcout << "Exception was raised in setRawFile\n";
+      }
+  }
+
+  void createObject ()
+  {
+
+    assembly = mono_domain_assembly_open (domain, assemblyFile.c_str ());
 
     if (!assembly)
       {
@@ -66,19 +93,15 @@ public:
 	exit (2);
       }
 
-    int argc = 2;
-    //char *argv[] = { (char*)"/tmp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_2c46981becf99b/rawrrRcpp.exe", (char*)"/tmp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_2c46981becf99b/rawrrRcpp.exe", NULL };
-
-    char *argv[] = { (char *) "rawrrRcpp.exe",
-      (char *) "rawrrRcpp.exe", NULL
-    };
-
-//   char *argv[] = { (char*)"/home/cp/project/2021/rawrrR.cpp/Rcpp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_3cdc296516ff44/rawrrRcpp.exe", (char*)"/home/cp/project/2021/rawrrR.cpp/Rcpp/sourceCpp-x86_64-pc-linux-gnu-1.0.7/sourcecpp_3cdc296516ff44/rawrrRcpp.exe", NULL };
+   // int argc = 2;
+   // char *argv[] = { (char *) "rawrrRcpp.exe",
+   //  (char *) "rawrrRcpp.exe", NULL
+   // };
 
 
     // CALLS MAIN OF CS PROGRAM
-    printf ("cpp: Call main\n");
-    mono_jit_exec (domain, assembly, argc - 1, argv + 1);
+ //   printf ("cpp: Call main\n");
+ //   mono_jit_exec (domain, assembly, argc - 1, argv + 1);
 
     image = mono_assembly_get_image (assembly);
 
@@ -93,10 +116,6 @@ public:
 
     obj = mono_object_new (domain, Raw);
     printf ("cpp: 2. createObject() - mono_object_new\n");
-  }
-
-  void createObject ()
-  {
     mono_runtime_object_init (obj);
     printf ("cpp: 3. createObject() - mono_runtime_object_init\n");
 
@@ -112,6 +131,7 @@ public:
     function_get_info = NULL;
     function_get_mZvalues = NULL;
     function_get_trailer = NULL;
+    function_set_rawFile = NULL;
     iter = NULL;
     while ((m = mono_class_get_methods (klass, &iter)))
       {
@@ -131,6 +151,10 @@ public:
 	else if (strcmp (mono_method_get_name (m), "trailer") == 0)
 	  {
 	    function_get_trailer = m;
+	  }
+	else if (strcmp (mono_method_get_name (m), "setRawFile") == 0)
+	  {
+	    function_set_rawFile = m;
 	  }
 	else
 	  {
