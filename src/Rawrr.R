@@ -1,5 +1,6 @@
 #R
 
+#Sys.setenv("PKG_CONFIG_PATH"="/Library/Frameworks/Mono.framework/Versions/6.12.0/lib/pkgconfig/")
 Sys.setenv("PKG_CPPFLAGS"="`pkg-config --cflags mono-2` -O3")
 Sys.setenv("PKG_CXXFLAGS"="`pkg-config --cflags mono-2` -O3")
 Sys.setenv("PKG_LIBS"="`pkg-config --libs mono-2`")
@@ -7,7 +8,7 @@ Sys.setenv("PKG_LIBS"="`pkg-config --libs mono-2`")
 #Sys.setenv("MONO_EXTERNAL_ENCODINGS"="utf8:latin1")
 
 
-Rcpp::sourceCpp("rawrrRcpp.cpp", cacheDir = "/scratch/cpanse/Rcpp/", showOutput=TRUE, verbose=TRUE, rebuild = TRUE)
+Rcpp::sourceCpp("rawrrRcpp.cpp", cacheDir = "/tmp/cpanse/Rcpp/", showOutput=TRUE, verbose=TRUE, rebuild = TRUE)
 #Rcpp::sourceCpp("rawrrRcpp.cpp", cacheDir = "/home/cp/project/2021/rawrrR.cpp/Rcpa")
 R <- new(Rawrr)
 R
@@ -17,7 +18,7 @@ R$get_Revision()
 R$get_mZvalues(1)
 R$get_trailer(1)
 
-rv <- lapply(c(1, 1, 10, 100, 500, 1000, 2000, 10000, 20000, 30000, 40000), function(n){
+rv <- lapply(c(1, 1, 10, 100, 500, 1000), function(n){
   start_time <- Sys.time()
   mZ <- lapply(1:n, function(scanId){list(peaks=R$get_mZvalues(scanId), dump=R$get_mZvalues(scanId),tailer=R$get_trailer(scanId))})
   end_time <- Sys.time()

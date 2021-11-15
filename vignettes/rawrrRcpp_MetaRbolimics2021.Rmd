@@ -31,7 +31,7 @@ Proteomics currently processes output of ~12 MS (mostly LC-ESI-MS). Many Orbitra
 https://fgcz.ch/ 
 
 
-## Past and present
+## Past and present <.smaller>
 
 `rawDiag | rawrr | MsBackendRawFileReader`
 
@@ -40,8 +40,8 @@ https://fgcz.ch/
 interfacing ThermoFisher libraries via:
 
 1. `system2` call
-	+ `mono rawrr.exe` 
-	+ parse R code via `source`
+	+ `mono rawrr.exe argv > out.R` 
+	+ parse R code by calling `source('out.R')`
 2. `rCLr` see https://github.com/rdotnet/rClr/blob/master/R/zzz.R
 
 ```{r arch2, echo=FALSE, out.width="90%", error=TRUE, fig.align='center'}
@@ -150,9 +150,10 @@ cons:
 
 thanks:
 
-* Tobias Kockmann <tobias.kockmann@fgcz.ethz.ch>
+* Tobias Kockmann
 * Christian Trachsel
 * Witold E. Wolski
+* Hervé Pagès 
 </div>
 
 <div class='note'>
