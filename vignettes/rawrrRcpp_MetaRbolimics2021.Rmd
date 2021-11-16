@@ -6,7 +6,7 @@ date: "MetaRbolomics 2021, Leucorea Lutherstadt Wittenberg"
 output:
   ioslides_presentation:
     widescreen: yes
-    smaller: no
+    smaller: yes
   beamer_presentation: default
 ---
 
@@ -18,20 +18,19 @@ output:
 knitr::opts_chunk$set(echo = TRUE,  eval=TRUE, message=FALSE, warning=FALSE)
 ```
 
-## The Functional Genomics Center Zurich
+## Past and present
 
-- joint state-of-the-art research and training (core) facility of ETH Zurich and University of Zurich.
+<div class='note'>
 
-- offer/support analytical services, training, collaborative R&D in:
+* The Functional Genomics Center Zurich - https://fgcz.ch/ 
+* joint state-of-the-art research and training (core) facility of ETH Zurich and University of Zurich.
+* offer/support analytical services, training, collaborative R&D in:
+* `Genomics |  Metabolomics | Proteomics`
+* Proteomics currently processes output of ~12 MS (mostly LC-ESI-MS). Many Orbitraps, fewer TOFs. 
 
-`Genomics |  Metabolomics | Proteomics`
-
-Proteomics currently processes output of ~12 MS (mostly LC-ESI-MS). Many Orbitraps, fewer TOFs. 
-
-https://fgcz.ch/ 
+</div>
 
 
-## Past and present {.smaller}
 
 `rawDiag | rawrr | MsBackendRawFileReader`
 
@@ -51,7 +50,7 @@ knitr::include_graphics("arch2.svg")
 
 
 
-## Future - invoke managed methods from C {.smaller}
+## Future - invoke managed methods from C
 
 <div class="columns-2">
 How CIL embedding works:
@@ -109,8 +108,9 @@ Rcpp::sourceCpp("rawrrRcpp.cpp")
 rawfile <- "sample.raw"
 scan <- 1
 R <- new(Rawrr)
-R.setAssembly('rawrrRcpp.exe')
-#R.setFileName(rawfile)
+R$setAssembly('rawrrRcpp.exe')
+R$createObject()
+R$setRawFile(rawrr::sampleFilePath())
 # OUTPUT: 
 #mZ <- R.getValues(scan, 'mZ')
 #intensities <- R.getValues(scan, 'intensities')
@@ -129,15 +129,17 @@ Mono JIT compiler version 5.18.0.240 (Debian 5.18.0.240+dfsg-3 Wed Apr 17 16:37:
 
 https://www.mono-project.com/docs/advanced/embedding/
 
-## Conclusion - next steps {.build}
+## Specs
+
+```{r benchmark, fig.width=9, fig.height=5, fig.retina=3, echo=FALSE}
+source('plotBenchmark.R')
+```
+
+## Summary
 
 <div class="columns-2">
 * tested on MacOSX | Linux mono version 5.18
 
-```{r benchmark, fig.width=4, fig.height=4, fig.retina=3, echo=FALSE}
-lattice::bwplot(Sepal.Length ~ Species | Species,
-  data=iris)
-```
 pros:
 
 * mono 5.17
@@ -158,12 +160,12 @@ thanks:
 
 <div class='note'>
 ```{r prx, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
-knitr::include_graphics("/Users/cp/Desktop/20211026-prx-Ziegelhuette.jpg")
+knitr::include_graphics("20211026-prx-Ziegelhuette.jpg")
 ```
 `staffproteomics@fgcz.ethz.ch`
 </div>
 
-## Session information {.smaller}
+## Session information 
 
 ```{r sessioninfo, echo=FALSE}
 sessionInfo()
