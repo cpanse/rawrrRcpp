@@ -33,6 +33,7 @@ class Rawrr
   MonoMethod *function_get_Revision;
   MonoMethod *function_get_info;
   MonoMethod *function_get_mZvalues;
+  MonoMethod *function_get_values;
   MonoMethod *function_get_trailer;
   MonoClass *Raw;
   MonoObject *obj;
@@ -72,8 +73,7 @@ public:
     MonoString *str;
     void *args[1];
     MonoObject *exception;
-    str = mono_string_new (domain, rawFile.c_str ());
-    args[0] = &str;
+    args[0] = mono_string_new (domain, rawFile.c_str ());
     exception = NULL;
     mono_runtime_invoke (function_set_rawFile, obj, args, &exception);
     if (exception)
@@ -130,6 +130,7 @@ public:
     function_get_Revision = NULL;
     function_get_info = NULL;
     function_get_mZvalues = NULL;
+    function_get_values = NULL;
     function_get_trailer = NULL;
     function_set_rawFile = NULL;
     iter = NULL;
@@ -147,6 +148,10 @@ public:
 	else if (strcmp (mono_method_get_name (m), "mZvalues") == 0)
 	  {
 	    function_get_mZvalues = m;
+	  }
+	else if (strcmp (mono_method_get_name (m), "values") == 0)
+	  {
+	    function_get_values = m;
 	  }
 	else if (strcmp (mono_method_get_name (m), "trailer") == 0)
 	  {
@@ -187,9 +192,43 @@ public:
     return (rv);
   }
 
+  NumericVector get_values (int scanIdx, std::string method)
+  {
+    int val;
+    MonoObject *exception;
+    MonoString *str;
+
+    val = scanIdx;
+
+    void *args[2];
+    args[0] = &val;
+    args[1] = mono_string_new (domain,method.c_str());
+
+    exception = NULL;
+
+    Rcpp::Rcout << method << "\t" << function_get_values << std::endl;
+
+    MonoArray *resultArray = (MonoArray *) mono_runtime_invoke (function_get_values, obj, args, &exception);
+
+    if (exception)
+      {
+    	Rcpp::Rcerr << "An exception was raised" << std::endl;
+	return (NULL);
+      }
+
+    NumericVector rv (mono_array_length (resultArray));
+    for (unsigned int i = 0; i < mono_array_length (resultArray); i++)
+      {
+	MonoString *s = mono_array_get (resultArray, MonoString *, i);
+	char *s2 = mono_string_to_utf8 (s);
+	rv[i] = atof (s2);
+      }
+    return (rv);
+  }
+
   NumericVector get_mZvalues (int scanIdx)
   {
-    void *args[2];
+    void *args[1];
     int val;
     MonoObject *exception;
     val = scanIdx;
@@ -219,8 +258,7 @@ public:
     int val;
 
     exception = NULL;
-    result =
-      mono_runtime_invoke (function_get_Revision, obj, NULL, &exception);
+    result = mono_runtime_invoke (function_get_Revision, obj, NULL, &exception);
     if (exception)
       {
 	printf ("An exception was thrown  get_Revision()\n");

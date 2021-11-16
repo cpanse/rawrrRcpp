@@ -89,10 +89,36 @@ namespace RawrrEmbed
       return zipTrailer;
     }
 
+    string[] values (int idx, string method)
+    {
+      var scan = Scan.FromFile (rawFile, idx);
+
+      //Console.WriteLine(method);
+
+      if (method.Equals("CentroidScan.Masses")){
+        var values = scan.CentroidScan.Masses.ToArray ();
+        String[]rv = new String[values.Length];
+        for (int i = 0; i < values.Length; i++)
+	  rv[i] = values[i].ToString ();
+        return rv;
+      } else if (method == "CentroidScan.Intensities"){
+        var values = scan.CentroidScan.Intensities.ToArray ();
+        String[]rv = new String[values.Length];
+        for (int i = 0; i < values.Length; i++)
+	  rv[i] = values[i].ToString ();
+        return rv;
+      }
+
+      return (null);
+    }
+
     /// TODO: rename peakValues
     string[]mZvalues (int idx)
     {
       var scan = Scan.FromFile (rawFile, idx);
+      using (StreamWriter file = new StreamWriter("WriteLines2.txt")){
+     	 file.WriteLine(idx);
+	 }
 
       var mZ = scan.CentroidScan.Masses.ToArray ();
       var intensities = scan.CentroidScan.Intensities.ToArray ();
