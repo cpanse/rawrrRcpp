@@ -11,7 +11,7 @@ f<-"/home/cpanse/.cache/R/rawrr/20181113_010_autoQC01.raw"
 EH4547 <- "/home/cpanse/.cache/R/ExperimentHub/18e7d5bfb4a3b_4590.raw"
 
 R <- new(Rawrr)
-R$setDomainName("rrr3")
+R$setDomainName("rawrrRcpp")
 R$createObject()
 R$setRawFile(EH4547)
 R$openFile()
@@ -51,7 +51,7 @@ S <- .readSpectrumRcpp(f, scan=smp)
   rbind(b1,b2)
 })   |> Reduce(f=rbind)
 
-write.csv2(b, file="../vignettes/benchmark.txt", row.names = FALSE, append=TRUE)
+write.table(b, file="../vignettes/benchmark.txt", row.names = FALSE, append=TRUE)
 })
 quit("yes")
 

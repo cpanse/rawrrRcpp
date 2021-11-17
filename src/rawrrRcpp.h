@@ -59,7 +59,7 @@ public:
 
   void setDomainName(std::string s = ""){
     std::string ss = "rawrrr" + s;
-    Rcpp::Rcout << "DomainName=" << ss << std::endl;
+    Rcpp::Rcerr << "DomainName=" << ss << std::endl;
     try
     {
     	domain = mono_jit_init_version (ss.c_str(), "v4.0");
@@ -77,9 +77,8 @@ public:
 
   void setRawFile (std::string file)
   {
-    Rcpp::Rcout << rawFile << std::endl;
     rawFile = file;
-    Rcpp::Rcout << rawFile << std::endl;
+    Rcpp::Rcerr << rawFile << std::endl;
 
     MonoString *str;
     void *args[1];
@@ -100,8 +99,8 @@ public:
 
     if (!assembly)
       {
-	printf ("ASSEMBLY PROBLEM\\n");
-	exit (2);
+	Rcpp::Rcerr << "ASSEMBLY PROBLEM\n" << std::endl;
+	return;
       }
 
     image = mono_assembly_get_image (assembly);
@@ -113,13 +112,13 @@ public:
 	return;
       }
 
-    Rcpp::Rcout <<  "mono_object_new ...";
+    Rcpp::Rcerr <<  "mono_object_new ...";
     obj = mono_object_new (domain, Raw);
-    Rcpp::Rcout <<  " [DONE]" << std::endl;
+    Rcpp::Rcerr <<  " [DONE]" << std::endl;
 
-    Rcpp::Rcout <<  "mono_runtime_object_init ...";
+    Rcpp::Rcerr <<  "mono_runtime_object_init ...";
     mono_runtime_object_init (obj);
-    Rcpp::Rcout <<  " [DONE]" << std::endl;
+    Rcpp::Rcerr <<  " [DONE]" << std::endl;
 
     /// browse class methods
     MonoClass *klass;

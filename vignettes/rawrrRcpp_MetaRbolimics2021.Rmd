@@ -50,10 +50,7 @@ knitr::include_graphics("arch2.svg")
 
 
 
-## Future - invoke managed methods from C
-
-<div class="columns-2">
-How CIL embedding works:
+## Today - invoke managed methods from C
 
 <table>
 <tr style="border:2px solid black">
@@ -92,71 +89,50 @@ Managed Assembly
 ThermoFisher.CommonCore.*.dll
 </td>
 </tr>
-
 </table>
 
-
-```{r eval=TRUE, echo=FALSE}
-Sys.setenv("PKG_CXXFLAGS"="`pkg-config --cflags mono-2` -O3")
-Sys.setenv("PKG_LIBS"="`pkg-config --libs mono-2`")
-```
-
-```{r}
-setwd('../src/')
-Rcpp::sourceCpp("rawrrRcpp.cpp")
-# INPUT:
-rawfile <- "sample.raw"
-scan <- 1
-R <- new(Rawrr)
-R$setAssembly('rawrrRcpp.exe')
-R$createObject()
-R$setRawFile(rawrr::sampleFilePath())
-# OUTPUT: 
-#mZ <- R.getValues(scan, 'mZ')
-#intensities <- R.getValues(scan, 'intensities')
-#nois <- R.getValues(scan, 'noise')
-#resolution <- R.getValues(scan, 'resolution')
-#trailer <- R.getTrailer(scan)
-#R$deconstructor()
-```
-
-</div>
-
-```
-$ mono --version
-Mono JIT compiler version 5.18.0.240 (Debian 5.18.0.240+dfsg-3 Wed Apr 17 16:37:36 UTC 2019)
-```
+<br>
 
 https://www.mono-project.com/docs/advanced/embedding/
 
-## Specs
 
-```{r benchmark, fig.width=9, fig.height=5, fig.retina=3, echo=FALSE}
+
+## Code snippet - reproduce scan 9594 EH4547
+
+```{r eval=TRUE, echo=TRUE, fig.width=9, fig.height=3}
+Sys.setenv("PKG_CXXFLAGS"="`pkg-config --cflags mono-2` -O3")
+Sys.setenv("PKG_LIBS"="`pkg-config --libs mono-2`")
+setwd('../src/'); Rcpp::sourceCpp("rawrrRcpp.cpp")
+EH4547 <- "/home/cpanse/.cache/R/ExperimentHub/18e7d5bfb4a3b_4590.raw"
+R <- new(Rawrr); R$setDomainName("rawrrRcpp"); R$createObject(); R$setRawFile(EH4547); R$openFile()
+mZ <- R$get_values(9594, "CentroidScan.Masses")
+intensity <- R$get_values(9594, "CentroidScan.Intensities")
+plot(mZ, intensity , type='h')
+```
+https://bioconductor.org/packages/release/bioc/vignettes/rawrr/inst/doc/rawrr.html
+
+## Single core I/O performance using EH4547
+
+```{r benchmark, fig.width=9, fig.height=5.5, fig.retina=3, echo=FALSE}
 source('plotBenchmark.R')
 ```
 
-## Summary
+## Conclusion, thoughts, and open issues
 
-<div class="columns-2">
-* tested on MacOSX | Linux mono version 5.18
+* rawrr mono embed is:
+  * faster 
+  * solves: language setting - digits separator is a comma and not a dot; https://github.com/fgcz/rawDiag/issues/33
+* How to handle the domain? Shall we use one mono VM domain through the entire R session? 
+* What about using dotnet? What is the future of mono?
+* At the moment, it runs only for mono version 5.18. The current mono version is 6.12.
+* Can we use static linked libraries, e.g., libmono-2.a? If yes, no mono install is required. 
 
-pros:
-
-* mono 5.17
-* static linking => requires mono install on deploy system
-
-cons:
-
-* failed to build with mono version 6.x
-* What is about with dot net?
-
-thanks:
+## Thanks
 
 * Tobias Kockmann
 * Christian Trachsel
 * Witold E. Wolski
 * Hervé Pagès 
-</div>
 
 <div class='note'>
 ```{r prx, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
@@ -165,9 +141,19 @@ knitr::include_graphics("20211026-prx-Ziegelhuette.jpg")
 `staffproteomics@fgcz.ethz.ch`
 </div>
 
-## Session information 
 
+# Appendix
+
+***
 ```{r sessioninfo, echo=FALSE}
 sessionInfo()
 ```
+***
+```{bash}
+mono --version
+```
 
+***
+```{r make, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
+knitr::include_graphics("rawrrRcpp-make.jpg")
+```
