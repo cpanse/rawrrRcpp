@@ -82,11 +82,20 @@ namespace RawrrEmbed
 
     string[]trailer (int idx)
     {
+      try
+      {
       var scanTrailer = rawFile.GetTrailerExtraInformation (idx);
       var trailerValues = scanTrailer.Values;
       var trailerLabels = scanTrailer.Labels;
       var zipTrailer = trailerLabels.ToArray ().Zip (trailerValues, (a, b) => string.Format ("{0}={1}", a, b)).ToArray();
       return zipTrailer;
+      }
+      catch (Exception ex)
+      {
+	this.errormsg +=
+	  "Error accessing trailer - " + ex.Message;
+	return (null);
+      }
     }
 
     string[] values (int idx, string method)
@@ -95,6 +104,9 @@ namespace RawrrEmbed
 
       //Console.WriteLine(method);
 
+      try
+      {
+      
       if (method.Equals("CentroidScan.Masses")){
         var values = scan.CentroidScan.Masses.ToArray ();
         String[]rv = new String[values.Length];
@@ -108,6 +120,13 @@ namespace RawrrEmbed
 	  rv[i] = values[i].ToString ();
         return rv;
       }
+      }
+      catch (Exception ex)
+      {
+	this.errormsg +=
+	  "Error accessing values - " + ex.Message;
+      }
+      this.rawFile.SelectInstrument (Device.MS, 1);
 
       return (null);
     }
@@ -134,7 +153,7 @@ namespace RawrrEmbed
       return mZString;
     }
 
-    int get_Revision ()
+    void openFile ()
     {
       try
       {
@@ -169,8 +188,11 @@ namespace RawrrEmbed
 	  "Error accessing RAWFileReader library! - " + ex.Message;
       }
       this.rawFile.SelectInstrument (Device.MS, 1);
+    }
+
+    int get_Revision ()
+    {
       return (this.rawFile.FileHeader.Revision);
-      //return (rawFile.FileHeader.Revision);
     }
 
     private static void Main (string[]args)

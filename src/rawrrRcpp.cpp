@@ -59,11 +59,14 @@ RCPP_MODULE (RawrrMod)
     ("Rawrr").default_constructor ("Default constructor").
     method ("setAssembly", &Rawrr::setAssembly, "Set assembly path.").
     method ("setRawFile", &Rawrr::setRawFile, "Set path of Thermo Fisher raw file.").
+    method ("setDomainName", &Rawrr::setDomainName, "Set the name of the domain.").
     method ("createObject", &Rawrr::createObject, "createObject.").
     method ("get_Revision", &Rawrr::get_Revision, "Returns the rawfile revision.").
+    method ("openFile", &Rawrr::openFile, "Opens raw file.").
     method ("get_mZvalues", &Rawrr::get_mZvalues, "Returns mZ valyes of a given scan id.").
     method ("get_values", &Rawrr::get_values, "Returns values of a given scan id and method.").
     method ("get_trailer", &Rawrr::get_trailer, "Returns extra trailer of a given scan id.").
+    method ("dector", &Rawrr::dector, "Returns extra trailer of a given scan id.").
     method ("get_info", &Rawrr::get_info, "Returns the rawfile revision.");
 }
 

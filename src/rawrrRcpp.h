@@ -35,6 +35,8 @@ class Rawrr
   MonoMethod *function_get_mZvalues;
   MonoMethod *function_get_values;
   MonoMethod *function_get_trailer;
+  MonoMethod *function_open_file;
+
   MonoClass *Raw;
   MonoObject *obj;
 
@@ -43,7 +45,6 @@ private:
 public:
     Rawrr ()
   {
-    std::cout << "cpp: Rawrr()" << std::endl;
     std::ifstream my_file (rawFile.c_str ());
     if (my_file.good ())
       {
@@ -51,12 +52,22 @@ public:
       }
     else
       {
-	std::cout << "FILE IS NOT GOOD!" << std::endl;
+	Rcpp::Rcerr << "File " << rawFile.c_str () << " is not good." << std::endl;
       }
     mono_config_parse (NULL);
-    domain = mono_jit_init_version ("rawrrr", "v4.0");
   }
 
+  void setDomainName(std::string s = ""){
+    std::string ss = "rawrrr" + s;
+    Rcpp::Rcout << "DomainName=" << ss << std::endl;
+    try
+    {
+    	domain = mono_jit_init_version (ss.c_str(), "v4.0");
+    }catch(const std::exception& e)
+    {
+	    Rcpp::Rcerr << "mono_jit_init_version failed." << std::endl;
+    }
+  }
   void setAssembly (std::string file)
   {
     Rcpp::Rcout << assemblyFile << std::endl;
@@ -93,31 +104,22 @@ public:
 	exit (2);
       }
 
-   // int argc = 2;
-   // char *argv[] = { (char *) "rawrrRcpp.exe",
-   //  (char *) "rawrrRcpp.exe", NULL
-   // };
-
-
-    // CALLS MAIN OF CS PROGRAM
- //   printf ("cpp: Call main\n");
- //   mono_jit_exec (domain, assembly, argc - 1, argv + 1);
-
     image = mono_assembly_get_image (assembly);
 
     Raw = mono_class_from_name (image, "RawrrEmbed", "RawRr");
     if (!Raw)
       {
-	fprintf (stderr, "Can't find RawRr in assembly %s\n",
-		 mono_image_get_filename (image));
-	exit (1);
+	Rcpp::Rcerr << "Can't find RawRr in assembly " << mono_image_get_filename (image) << std::endl;
+	return;
       }
-    printf ("cpp: 1. createObject() - mono_class_from_name\n");
 
+    Rcpp::Rcout <<  "mono_object_new ...";
     obj = mono_object_new (domain, Raw);
-    printf ("cpp: 2. createObject() - mono_object_new\n");
+    Rcpp::Rcout <<  " [DONE]" << std::endl;
+
+    Rcpp::Rcout <<  "mono_runtime_object_init ...";
     mono_runtime_object_init (obj);
-    printf ("cpp: 3. createObject() - mono_runtime_object_init\n");
+    Rcpp::Rcout <<  " [DONE]" << std::endl;
 
     /// browse class methods
     MonoClass *klass;
@@ -133,10 +135,11 @@ public:
     function_get_values = NULL;
     function_get_trailer = NULL;
     function_set_rawFile = NULL;
+    function_open_file = NULL;
     iter = NULL;
     while ((m = mono_class_get_methods (klass, &iter)))
       {
-	printf ("cpp: method = %s\n", mono_method_get_name (m));
+	//printf ("cpp: method = %s\n", mono_method_get_name (m));
 	if (strcmp (mono_method_get_name (m), "get_Revision") == 0)
 	  {
 	    function_get_Revision = m;
@@ -145,9 +148,9 @@ public:
 	  {
 	    function_get_info = m;
 	  }
-	else if (strcmp (mono_method_get_name (m), "mZvalues") == 0)
+	else if (strcmp (mono_method_get_name (m), "openFile") == 0)
 	  {
-	    function_get_mZvalues = m;
+	    function_open_file = m;
 	  }
 	else if (strcmp (mono_method_get_name (m), "values") == 0)
 	  {
@@ -180,7 +183,8 @@ public:
 					 &exception);
     if (exception)
       {
-	return (-1);
+        Rcpp::Rcerr << "exception raised" << std::endl;
+	return (NULL);
       }
     CharacterVector rv (mono_array_length (resultArray));
     for (unsigned int i = 0; i < mono_array_length (resultArray); i++)
@@ -206,13 +210,14 @@ public:
 
     exception = NULL;
 
-    Rcpp::Rcout << method << "\t" << function_get_values << std::endl;
+    //Rcpp::Rcout << method << "\t" << function_get_values << std::endl;
 
     MonoArray *resultArray = (MonoArray *) mono_runtime_invoke (function_get_values, obj, args, &exception);
 
     if (exception)
       {
     	Rcpp::Rcerr << "An exception was raised" << std::endl;
+	get_info();
 	return (NULL);
       }
 
@@ -251,6 +256,20 @@ public:
     return (rv);
   }
 
+  void openFile()
+  {
+    MonoObject *result, *exception;
+    int val;
+
+    exception = NULL;
+
+    result = mono_runtime_invoke (function_open_file, obj, NULL, &exception);
+
+    if (exception)
+      {
+	Rcpp::Rcerr << "An exception was thrown while open raw file." << std::endl;
+      }
+  }
 
   int get_Revision ()
   {
@@ -261,7 +280,7 @@ public:
     result = mono_runtime_invoke (function_get_Revision, obj, NULL, &exception);
     if (exception)
       {
-	printf ("An exception was thrown  get_Revision()\n");
+	Rcpp::Rcerr << "An exception was thrown get_Revision()." << std::endl;
 	return (-1);
       }
 
@@ -274,7 +293,6 @@ public:
 
   int get_info ()
   {
-    printf ("cpp: GET_INFO_BEGIN\n");
     MonoObject *exception;
 
     exception = NULL;
@@ -285,7 +303,7 @@ public:
 
     if (exception)
       {
-	printf ("An exception was thrown  get_info()\n");
+	Rcpp::Rcerr << "An exception was thrown get_info()." << std::endl;
 	return (-1);
       }
 
@@ -293,11 +311,15 @@ public:
       {
 	MonoString *s = mono_array_get (result, MonoString *, i);
 	char *s2 = mono_string_to_utf8 (s);
-	printf ("cpp: INFO: %s\n", s2);
+	Rcpp::Rcout << "INFO[" << i << "]: " << s2 << std::endl;
       }
 
-    printf ("cpp: GET_INFO_END\n");
     return (0);
+  }
+
+  void dector(){
+    mono_jit_cleanup (domain);
+    Rcpp::Rcout << "dector" << std::endl;
   }
 
 };				//class
