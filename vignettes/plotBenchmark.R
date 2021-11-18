@@ -23,6 +23,6 @@ axis(1,1:m, names(table(S$n)))
 axis(2)
 axis(4, c(1,30), c(1,30))
 
-legend("bottomright", c("system2 (rawrr BioC3.14)", "Rcpp libmono-2.so"),
+legend("bottomright", c(paste("rawrr", packageVersion('rawrr')), "Rcpp libmono-2.so"),
             fill = c("yellow", "orange"))
 

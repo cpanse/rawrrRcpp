@@ -16,6 +16,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,  eval=TRUE, message=FALSE, warning=FALSE)
+options(prompt = "R> ")
 ```
 
 ## Past and present
@@ -50,7 +51,7 @@ knitr::include_graphics("arch2.svg")
 
 
 
-## Today - invoke managed methods from C
+## Today - invoke managed methods from C++
 
 <table>
 <tr style="border:2px solid black">
@@ -93,7 +94,8 @@ ThermoFisher.CommonCore.*.dll
 
 <br>
 
-https://www.mono-project.com/docs/advanced/embedding/
+* https://www.mono-project.com/docs/advanced/embedding/
+* https://planetorbitrap.com/rawfilereader (dead link)
 
 
 
@@ -109,7 +111,7 @@ mZ <- R$get_values(9594, "CentroidScan.Masses")
 intensity <- R$get_values(9594, "CentroidScan.Intensities")
 plot(mZ, intensity , type='h')
 ```
-https://bioconductor.org/packages/release/bioc/vignettes/rawrr/inst/doc/rawrr.html
+https://bioconductor.org/packages/rawrr/ - [vignette Figure 1](https://bioconductor.org/packages/release/bioc/vignettes/rawrr/inst/doc/rawrr.html#31_Use_Case_I_-_Analyzing_Orbitrap_Spectra).
 
 ## Single core I/O performance using EH4547
 
@@ -119,13 +121,14 @@ source('plotBenchmark.R')
 
 ## Conclusion, thoughts, and open issues
 
-* rawrr mono embed is:
-  * faster 
-  * solves: language setting - digits separator is a comma and not a dot; https://github.com/fgcz/rawDiag/issues/33
-* How to handle the domain? Shall we use one mono VM domain through the entire R session? 
+* Invoke managed methods (ThermoFisher.CommonCore.*.dll) from Rcpp/C++ using libmono-2
+  * is faster 
+  * solves language setting/digits setup issues, e.g., https://github.com/fgcz/rawDiag/issues/33
+* How to handle the mono domain (namespace)? Shall we use one mono VM domain through the entire R session? 
 * What about using dotnet? What is the future of mono?
 * At the moment, it runs only for mono version 5.18. The current mono version is 6.12.
 * Can we use static linked libraries, e.g., libmono-2.a? If yes, no mono install is required. 
+* Source code snippets: https://gitlab.bfabric.org/proteomics/rawrrrcpp
 
 ## Thanks
 
@@ -133,6 +136,10 @@ source('plotBenchmark.R')
 * Christian Trachsel
 * Witold E. Wolski
 * Hervé Pagès 
+
+```{r ZH, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
+knitr::include_graphics("ZH.jpeg")
+```
 
 <div class='note'>
 ```{r prx, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
