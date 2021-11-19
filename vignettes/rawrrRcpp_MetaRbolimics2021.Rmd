@@ -1,13 +1,15 @@
 ---
-title: "rawrrRcpp"
+title: "rawrr using Rcpp and libmono-2"
 subtitle: "Access to Orbitrap Data and Beyond"
-author: "Christian Panse <cp@fgz.ethz.ch>"
-date: "MetaRbolomics 2021, Leucorea Lutherstadt Wittenberg"
+author: "Christian Panse <cp@fgcz.ethz.ch>"
+date: "MetaRbolomics 2021, Leucorea, Lutherstadt Wittenberg"
 output:
   ioslides_presentation:
     widescreen: yes
     smaller: yes
+    logo: fgcz.svg 
   beamer_presentation: default
+  background-position: bottom
 ---
 
 <style>
@@ -19,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE,  eval=TRUE, message=FALSE, warning=FALSE)
 options(prompt = "R> ")
 ```
 
-## Past and present
+## Past and present access to Orbitrap data
 
 <div class='note'>
 
@@ -31,13 +33,9 @@ options(prompt = "R> ")
 
 </div>
 
-
-
-`rawDiag | rawrr | MsBackendRawFileReader`
-
 <div class="columns-2">
-
-interfacing ThermoFisher libraries via:
+`r BiocStyle::Biocpkg("rawrr")` history of 
+interfacing `ThermoFisher.CommonCore.*.dll`:
 
 1. `system2` call
 	+ `mono rawrr.exe argv > out.R` 
@@ -94,8 +92,10 @@ ThermoFisher.CommonCore.*.dll
 
 <br>
 
+* https://docs.microsoft.com/en-us/dotnet/standard/managed-code
 * https://www.mono-project.com/docs/advanced/embedding/
 * https://planetorbitrap.com/rawfilereader (dead link)
+* https://github.com/thermofisherlsms/ThermoRawFileParser/tree/master/packages/ThermoFisher.CommonCore.RawFileReader.4.0.26
 
 
 
@@ -104,11 +104,11 @@ ThermoFisher.CommonCore.*.dll
 ```{r eval=TRUE, echo=TRUE, fig.width=9, fig.height=3}
 Sys.setenv("PKG_CXXFLAGS"="`pkg-config --cflags mono-2` -O3")
 Sys.setenv("PKG_LIBS"="`pkg-config --libs mono-2`")
-setwd('../src/'); Rcpp::sourceCpp("rawrrRcpp.cpp")
-EH4547 <- "/home/cpanse/.cache/R/ExperimentHub/18e7d5bfb4a3b_4590.raw"
-R <- new(Rawrr); R$setDomainName("rawrrRcpp"); R$createObject(); R$setRawFile(EH4547); R$openFile()
-mZ <- R$get_values(9594, "CentroidScan.Masses")
-intensity <- R$get_values(9594, "CentroidScan.Intensities")
+setwd('../src/'); Rcpp::sourceCpp("rawrrRcpp.cpp")                     # compile and link
+EH4547 <- "/home/cpanse/.cache/R/ExperimentHub/18e7d5bfb4a3b_4590.raw" # input
+R <- new(Rawrr); R$setDomainName("rawrrRcpp"); R$createObject();       # C++ ctor; start runtime
+R$setRawFile(EH4547); R$openFile()                                     # invoke managed methods
+mZ <- R$get_values(9594, "CentroidScan.Masses"); intensity <- R$get_values(9594, "CentroidScan.Intensities")
 plot(mZ, intensity , type='h')
 ```
 https://bioconductor.org/packages/rawrr/ - [vignette Figure 1](https://bioconductor.org/packages/release/bioc/vignettes/rawrr/inst/doc/rawrr.html#31_Use_Case_I_-_Analyzing_Orbitrap_Spectra).
@@ -121,21 +121,23 @@ source('plotBenchmark.R')
 
 ## Conclusion, thoughts, and open issues
 
-* Invoke managed methods (ThermoFisher.CommonCore.*.dll) from Rcpp/C++ using libmono-2
-  * is faster 
+* Invoke managed methods (ThermoFisher.CommonCore.*.dll) using Rcpp/C++ and libmono-2
+  * technically sound
+  * is faster than current `r BiocStyle::Biocpkg("rawrr")` implementation (3-8x for reading more than 20K spectra)
   * solves language setting/digits setup issues, e.g., https://github.com/fgcz/rawDiag/issues/33
-* How to handle the mono domain (namespace)? Shall we use one mono VM domain through the entire R session? 
-* What about using dotnet? What is the future of mono?
-* At the moment, it runs only for mono version 5.18. The current mono version is 6.12.
-* Can we use static linked libraries, e.g., libmono-2.a? If yes, no mono install is required. 
+* It runs for mono version 5.18.0.240 (Apr 17 16:37:36 UTC 2019).
+  * It **fails** on the current mono versions (6.12.x.x) when using Rcpp.!?
+* Can we use static linked libraries, e.g., libmono-2.a?
+  * If yes, no mono install is required for Windows`|`macOS binary R packages.
+* What about using dotnet?  ...
 * Source code snippets: https://gitlab.bfabric.org/proteomics/rawrrrcpp
 
 ## Thanks
 
-* Tobias Kockmann
-* Christian Trachsel
-* Witold E. Wolski
-* Hervé Pagès 
+* Tobias Kockmann (FGCZ)
+* Christian Trachsel (FGCZ alumni)
+* Witold E. Wolski (FGCZ)
+* Hervé Pagès  (Bioconductor)
 
 ```{r ZH, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
 knitr::include_graphics("ZH.jpeg")
@@ -160,7 +162,7 @@ sessionInfo()
 mono --version
 ```
 
-***
-```{r make, echo=FALSE, out.width="100%", error=TRUE, fig.align='center'}
+## {data-background=rawrrRcpp-make.jpg}
+```{r make, echo=FALSE, out.width="100%", error=TRUE, fig.align='center', eval=FALSE}
 knitr::include_graphics("rawrrRcpp-make.jpg")
 ```
