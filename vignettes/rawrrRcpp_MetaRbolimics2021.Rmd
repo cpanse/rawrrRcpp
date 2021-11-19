@@ -1,15 +1,13 @@
 ---
-title: "rawrr using Rcpp and libmono-2"
-subtitle: "Access to Orbitrap Data and Beyond"
+title: "`rawrr` - invoking managed code"
+subtitle: "`using ThermoFisher.CommonCore.RawFileReader;`"
 author: "Christian Panse <cp@fgcz.ethz.ch>"
-date: "MetaRbolomics 2021, Leucorea, Lutherstadt Wittenberg"
+date: "[3rd de.NBI / ELIXIR-DE metaRbolomics Hackathon](https://www.denbi.de/news/1299-3rd-de-nbi-elixir-de-metarbolomics-hackathon) 2021, Leucorea, Lutherstadt Wittenberg"
 output:
   ioslides_presentation:
     widescreen: yes
     smaller: yes
     logo: fgcz.svg 
-  beamer_presentation: default
-  background-position: bottom
 ---
 
 <style>
@@ -21,35 +19,32 @@ knitr::opts_chunk$set(echo = TRUE,  eval=TRUE, message=FALSE, warning=FALSE)
 options(prompt = "R> ")
 ```
 
-## Past and present access to Orbitrap data
+## Interfacing `ThermoFisher.CommonCore.*.dll`
 
-<div class='note'>
-
-* The Functional Genomics Center Zurich - https://fgcz.ch/ 
-* joint state-of-the-art research and training (core) facility of ETH Zurich and University of Zurich.
-* offer/support analytical services, training, collaborative R&D in:
-* `Genomics |  Metabolomics | Proteomics`
-* Proteomics currently processes output of ~12 MS (mostly LC-ESI-MS). Many Orbitraps, fewer TOFs. 
-
-</div>
+R package `rawrr` provides direct acces to proprietary formated vendor data using .NET assemblies.
 
 <div class="columns-2">
-`r BiocStyle::Biocpkg("rawrr")` history of 
-interfacing `ThermoFisher.CommonCore.*.dll`:
 
-1. `system2` call
-	+ `mono rawrr.exe argv > out.R` 
-	+ parse R code by calling `source('out.R')`
-2. `rCLr` see https://github.com/rdotnet/rClr/blob/master/R/zzz.R
+current (Bioc v3.14) `rawrr` implementation:
 
-```{r arch2, echo=FALSE, out.width="90%", error=TRUE, fig.align='center'}
-knitr::include_graphics("arch2.svg")
+1. `system2` call `mono rawrr.exe argv > out.R` 
+2. parse R code by calling `source('out.R')`
+
+**problems**:
+
+* overhead for `system2` call and parse using `source`
+* requires: cross platform, open source .NET framework [mono](https://www.mono-project.com/)-runtime installed on macOS and Linux
+* language setting issues [#33](https://github.com/fgcz/rawDiag/issues/33)
+
+```{r rawrrlogo, echo=FALSE, out.width="65%", error=TRUE, fig.align='center'}
+knitr::include_graphics("rawrr_logo.png")
 ```
 </div>
+first solution approach:
 
+* using `rCLr` see https://github.com/rdotnet/rClr/blob/master/R/zzz.R :-( &#10006;
 
-
-## Today - invoke managed methods from C++
+## Solution - invoke managed methods from C++
 
 <table>
 <tr style="border:2px solid black">
@@ -80,6 +75,8 @@ Mono Runtime - linking `libmono-2`
 <td style="padding:15px">
 Managed Assembly
 (CIL/.NET code)
+<br>
+rawrr.exe
 </td>
 </tr>
 
@@ -121,15 +118,16 @@ source('plotBenchmark.R')
 
 ## Conclusion, thoughts, and open issues
 
-* Invoke managed methods (ThermoFisher.CommonCore.*.dll) using Rcpp/C++ and libmono-2
+* invoke managed methods (ThermoFisher.CommonCore.*.dll) using Rcpp/C++ and libmono-2
   * technically sound
   * is faster than current `r BiocStyle::Biocpkg("rawrr")` implementation (3-8x for reading more than 20K spectra)
   * solves language setting/digits setup issues, e.g., https://github.com/fgcz/rawDiag/issues/33
-* It runs for mono version 5.18.0.240 (Apr 17 16:37:36 UTC 2019).
+* it runs for mono version 5.18.0.240 (Apr 17 16:37:36 UTC 2019).
   * It **fails** on the current mono versions (6.12.x.x) when using Rcpp.!?
 * Can we use static linked libraries, e.g., libmono-2.a?
   * If yes, no mono install is required for Windows`|`macOS binary R packages.
 * What about using dotnet?  ...
+
 * Source code snippets: https://gitlab.bfabric.org/proteomics/rawrrrcpp
 
 ## Thanks
