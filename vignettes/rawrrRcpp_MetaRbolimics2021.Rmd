@@ -1,7 +1,7 @@
 ---
 title: "`rawrr` - invoking managed code"
 subtitle: "`using ThermoFisher.CommonCore.RawFileReader;`"
-author: "Christian Panse <cp@fgcz.ethz.ch>"
+author: "Christian Panse <cp@fgcz.ethz.ch> <br>Functional Genomics Center Zurich ETHZ|UZH / Swiss Institute of Bioinformatics"
 date: "[3rd de.NBI / ELIXIR-DE metaRbolomics Hackathon](https://www.denbi.de/news/1299-3rd-de-nbi-elixir-de-metarbolomics-hackathon) 2021, Leucorea, Lutherstadt Wittenberg"
 output:
   ioslides_presentation:
@@ -32,7 +32,7 @@ current (Bioc v3.14) `rawrr` implementation:
 
 **problems**:
 
-* overhead for `system2` call and parse using `source`
+* overhead for `system2` call and parse using `source` [#43](https://github.com/fgcz/rawDiag/issues/43)
 * requires: cross platform, open source .NET framework [mono](https://www.mono-project.com/)-runtime installed on macOS and Linux
 * language setting issues [#33](https://github.com/fgcz/rawDiag/issues/33)
 
@@ -121,9 +121,9 @@ source('plotBenchmark.R')
 * invoke managed methods (ThermoFisher.CommonCore.*.dll) using Rcpp/C++ and libmono-2
   * technically sound
   * is faster than current `r BiocStyle::Biocpkg("rawrr")` implementation (3-8x for reading more than 20K spectra)
-  * solves language setting/digits setup issues, e.g., https://github.com/fgcz/rawDiag/issues/33
+  * solves language setting/digits setup issues, e.g., [#33](https://github.com/fgcz/rawDiag/issues/33), [#37](https://github.com/fgcz/rawrr/issues/37).
 * it runs for mono version 5.18.0.240 (Apr 17 16:37:36 UTC 2019).
-  * It **fails** on the current mono versions (6.12.x.x) when using Rcpp.!?
+  * It **fails** on the current mono versions (6.12.x.x) when using Rcpp.!? [#21320](https://github.com/mono/mono/issues/21320)
 * Can we use static linked libraries, e.g., libmono-2.a?
   * If yes, no mono install is required for Windows`|`macOS binary R packages.
 * What about using dotnet?  ...
