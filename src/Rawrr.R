@@ -16,6 +16,7 @@ R$createObject()
 R$setRawFile(EH4547)
 R$openFile()
 
+
 set.seed(2)
 
 .readSpectrumRcpp <- function(f, scan){
@@ -51,7 +52,7 @@ S <- .readSpectrumRcpp(f, scan=smp)
   rbind(b1,b2)
 })   |> Reduce(f=rbind)
 
-write.table(b, file="../vignettes/benchmark.txt", row.names = FALSE, append=TRUE)
+write.table(b, file="../vignettes/benchmark2.txt", row.names = FALSE, append=TRUE)
 })
 quit("yes")
 
