@@ -100,7 +100,8 @@ namespace RawrrEmbed
 
     string[] values (int idx, string method)
     {
-      var scan = Scan.FromFile (rawFile, idx);
+      //var scan = Scan.FromFile (rawFile, idx);
+      var centroidStream = rawFile.GetCentroidStream(idx, false);
 
       //Console.WriteLine(method);
 
@@ -108,13 +109,15 @@ namespace RawrrEmbed
       {
       
       if (method.Equals("CentroidScan.Masses")){
-        var values = scan.CentroidScan.Masses.ToArray ();
+        // var values = scan.CentroidScan.Masses.ToArray ();
+        var values = centroidStream.Masses.ToArray ();
         String[]rv = new String[values.Length];
         for (int i = 0; i < values.Length; i++)
 	  rv[i] = values[i].ToString ();
         return rv;
       } else if (method == "CentroidScan.Intensities"){
-        var values = scan.CentroidScan.Intensities.ToArray ();
+        // var values = scan.CentroidScan.Intensities.ToArray ();
+        var values = centroidStream.Intensities.ToArray ();
         String[]rv = new String[values.Length];
         for (int i = 0; i < values.Length; i++)
 	  rv[i] = values[i].ToString ();
@@ -203,11 +206,13 @@ namespace RawrrEmbed
       //Console.WriteLine(fullPath);
       //Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-      //          RawRr R = new RawRr();
+      RawRr R = new RawRr();
+      R.setRawFile("18e7d5bfb4a3b_4590.raw");
+      R.openFile();
       //          foreach (var msg in R.get_info()){
       //             Console.WriteLine(msg);
       //          }
-      //          Console.WriteLine(R.get_Revision());
+      Console.WriteLine(R.get_Revision());
     }
   }
 }

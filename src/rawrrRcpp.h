@@ -80,7 +80,7 @@ public:
     rawFile = file;
     Rcpp::Rcerr << rawFile << std::endl;
 
-    MonoString *str;
+    //MonoString *str;
     void *args[1];
     MonoObject *exception;
     args[0] = mono_string_new (domain, rawFile.c_str ());
@@ -199,7 +199,7 @@ public:
   {
     int val;
     MonoObject *exception;
-    MonoString *str;
+    //MonoString *str;
 
     val = scanIdx;
 
@@ -258,7 +258,7 @@ public:
   void openFile()
   {
     MonoObject *result, *exception;
-    int val;
+    //int val;
 
     exception = NULL;
 
